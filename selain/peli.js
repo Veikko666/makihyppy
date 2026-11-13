@@ -183,6 +183,7 @@
   // ------------------------------------------------------------ syöte
   const osoittimet = new Map();
   let kaksiSormea = false;
+  let viimeOsoitin = 'mouse';
   const nappaimet = { ylos: false, alas: false };
 
   function painallus() {
@@ -206,7 +207,10 @@
     if (ac && ac.state === 'suspended') ac.resume();
     try { cv.setPointerCapture(e.pointerId); } catch (_) { /* */ }
     if (tila !== 'peli') return;
+    viimeOsoitin = e.pointerType || 'mouse';
     if (e.button === 2) { alastulo('tasajalka'); return; }
+    // Hiirellä lentoasentoa ohjataan ilman painallusta, joten klikkaus lennossa on suoraan telemark.
+    if (e.pointerType === 'mouse' && hyppy.vaihe === 'lento' && hyppy.irrotettu) { alastulo('telemark'); return; }
     osoittimet.set(e.pointerId, { y: e.clientY, x: e.clientX, t0: performance.now(), liike: 0 });
     if (osoittimet.size >= 2 && hyppy.vaihe === 'lento') { kaksiSormea = true; alastulo('tasajalka'); return; }
     if (osoittimet.size === 1) painallus();
@@ -219,6 +223,13 @@
     if (hyppy.vaihe === 'lento' && osoittimet.size === 1 && !kaksiSormea) {
       F.kallista(hyppy, -dy * asetukset.herkkyys * (asetukset.kaanna ? -1 : 1));
     }
+  });
+  // Hiiri: lennossa pelkkä liike (ilman nappia) säätää lentoasentoa.
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || tila !== 'peli' || !hyppy || osoittimet.has(e.pointerId)) return;
+    if (hyppy.vaihe !== 'lento' || !hyppy.irrotettu) return;
+    const dy = e.movementY || 0;
+    if (dy) F.kallista(hyppy, -dy * asetukset.herkkyys * (asetukset.kaanna ? -1 : 1));
   });
   function osoitinYlos(e, peruttu) {
     const p = osoittimet.get(e.pointerId);
@@ -752,7 +763,9 @@
     if (h.vaihe === 'portilla') vihje = 'Paina ja pidä pohjassa (tai välilyönti) – lasku alkaa';
     else if (h.vaihe === 'vauhti' && !h.irrotettu) vihje = h.u < 25 ? 'Irrota nokalla!' : 'Pidä pohjassa… irrota hyppyrin nokalla';
     else if (h.vaihe === 'lento' && !h.alastulo) {
-      vihje = h.tLento < 1.2 ? 'Paina ja vedä: alas = eteen, ylös = kärjet ylös' : 'Napauta = telemark · kaksi sormea / oikea nappi = tasajalka';
+      const hiiri = viimeOsoitin === 'mouse';
+      if (h.tLento < 1.2) vihje = hiiri ? 'Liikuta hiirtä: alas = eteen, ylös = kärjet ylös' : 'Paina ja vedä: alas = eteen, ylös = kärjet ylös';
+      else vihje = hiiri ? 'Klikkaa = telemark · oikea nappi = tasajalka' : 'Napauta = telemark · kaksi sormea = tasajalka';
     }
     if (vihje) {
       ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';

@@ -9,8 +9,8 @@ kansiossa ja mene osoitteeseen http://localhost:8000).
 |---|---|---|
 | Vauhti | Paina ja pidä | Välilyönti pohjaan |
 | Ponnistus | Irrota nokalla | Irrota välilyönti |
-| Lento | Paina ja vedä (alas = eteen) | ↓ / ↑ |
-| Alastulo | Napautus = telemark, oikea nappi / kaksi sormea = tasajalka | T / Shift |
+| Lento | Hiiri: liikuta ilman painallusta · kosketus: paina ja vedä (alas = eteen) | ↓ / ↑ |
+| Alastulo | Klikkaus / napautus = telemark, oikea nappi / kaksi sormea = tasajalka | T / Shift |
 
 - `fysiikka.js` – mäkiprofiilit, fysiikka ja pisteytys (toimii myös Nodessa)
 - `peli.js` – syöte, kamera, piirto, äänet ja valikot
