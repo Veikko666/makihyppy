@@ -7,8 +7,8 @@ kansiossa ja mene osoitteeseen http://localhost:8000).
 
 | Vaihe | Hiiri / kosketus | Näppäimistö |
 |---|---|---|
-| Vauhti | Paina ja pidä | Välilyönti pohjaan |
-| Ponnistus | Irrota nokalla | Irrota välilyönti |
+| Vauhti | Klikkaus / napautus | Välilyönti |
+| Ponnistus | Klikkaus / napautus nokalla | Välilyönti uudelleen |
 | Lento | Hiiri: liikuta ilman painallusta · kosketus: paina ja vedä (alas = eteen) | ↓ / ↑ |
 | Alastulo | Klikkaus / napautus = telemark, oikea nappi / kaksi sormea = tasajalka | T / Shift |
 

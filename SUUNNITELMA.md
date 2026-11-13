@@ -32,10 +32,11 @@ hyppy. Nopea uudelleenyritys on tärkeää (yksi napautus = uusi hyppy).
 Tavoite: koko hyppy yhdellä peukalolla, mutta syvyyttä riittää.
 
 ### Oletusohjaus: "pidä ja vedä"
-1. **Vauhti:** Paina sormi ruudulle → hyppääjä lähtee ja menee
-   vauhtiasentoon. Sormi pysyy ruudulla koko vauhdin ajan.
-2. **Ponnistus:** **Nosta sormi** hyppyrin nokalla. Irrotus on luonnollinen ja
-   tarkka ajoitusele (tarkempi kuin napautus).
+1. **Vauhti:** Napauta ruutua → hyppääjä lähtee ja menee vauhtiasentoon.
+   Sormea ei tarvitse pitää ruudulla.
+2. **Ponnistus:** **Napauta uudelleen** hyppyrin nokalla. Ponnistus
+   tapahtuu heti kosketuksen alkaessa, joten ajoitus on tarkka.
+   (Alkuperäinen "pidä ja irrota" -malli vaihdettiin testauksen perusteella.)
 3. **Lento:** Paina sormi uudelleen ruudulle missä tahansa. **Pystysuuntainen
    veto kosketuskohdasta** ohjaa vartalon kulmaa (ylös = pystympi, alas =
    etukenompi). Suhteellinen ohjaus → ei väliä mihin kohtaan ruutua painaa.

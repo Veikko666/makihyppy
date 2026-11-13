@@ -188,8 +188,9 @@
 
   function painallus() {
     if (tila !== 'peli' || !hyppy) return;
+    // Ensimmäinen painallus aloittaa laskun, toinen ponnistaa.
     if (hyppy.vaihe === 'portilla') F.aloita(hyppy);
-    else if (hyppy.vaihe === 'vauhti') F.kyykisty(hyppy, true);
+    else irrotus();
   }
   function irrotus() {
     if (tila !== 'peli' || !hyppy) return;
@@ -211,7 +212,8 @@
     if (e.button === 2) { alastulo('tasajalka'); return; }
     // Hiirellä lentoasentoa ohjataan ilman painallusta, joten klikkaus lennossa on suoraan telemark.
     if (e.pointerType === 'mouse' && hyppy.vaihe === 'lento' && hyppy.irrotettu) { alastulo('telemark'); return; }
-    osoittimet.set(e.pointerId, { y: e.clientY, x: e.clientX, t0: performance.now(), liike: 0 });
+    const ponnistus = hyppy.vaihe === 'portilla' || hyppy.vaihe === 'vauhti' || (hyppy.vaihe === 'lento' && !hyppy.irrotettu);
+    osoittimet.set(e.pointerId, { y: e.clientY, x: e.clientX, t0: performance.now(), liike: 0, ponnistus });
     if (osoittimet.size >= 2 && hyppy.vaihe === 'lento') { kaksiSormea = true; alastulo('tasajalka'); return; }
     if (osoittimet.size === 1) painallus();
   });
@@ -236,9 +238,8 @@
     osoittimet.delete(e.pointerId);
     if (!p || tila !== 'peli' || peruttu) { if (osoittimet.size === 0) kaksiSormea = false; return; }
     const kesto = performance.now() - p.t0;
-    if (hyppy.vaihe === 'vauhti' || (hyppy.vaihe === 'lento' && !hyppy.irrotettu)) {
-      if (osoittimet.size === 0) irrotus();
-    } else if (hyppy.vaihe === 'lento' && !kaksiSormea && kesto < 230 && p.liike < 14) {
+    // Lähtö- tai ponnistuspainalluksen irrotus ei ole telemark.
+    if (!p.ponnistus && hyppy.vaihe === 'lento' && !kaksiSormea && kesto < 230 && p.liike < 14) {
       alastulo('telemark');
     }
     if (osoittimet.size === 0) kaksiSormea = false;
@@ -262,7 +263,7 @@
   });
   window.addEventListener('keyup', (e) => {
     const k = e.key;
-    if (k === ' ' && tila === 'peli') { e.preventDefault(); irrotus(); }
+    if (k === ' ' && tila === 'peli') { e.preventDefault(); }
     else if (k === 'ArrowUp' || k === 'w' || k === 'W') nappaimet.ylos = false;
     else if (k === 'ArrowDown' || k === 's' || k === 'S') nappaimet.alas = false;
   });
@@ -760,8 +761,8 @@
 
     // Vihje
     let vihje = '';
-    if (h.vaihe === 'portilla') vihje = 'Paina ja pidä pohjassa (tai välilyönti) – lasku alkaa';
-    else if (h.vaihe === 'vauhti' && !h.irrotettu) vihje = h.u < 25 ? 'Irrota nokalla!' : 'Pidä pohjassa… irrota hyppyrin nokalla';
+    if (h.vaihe === 'portilla') vihje = 'Klikkaa tai napauta (tai välilyönti) – lasku alkaa';
+    else if (h.vaihe === 'vauhti' && !h.irrotettu) vihje = h.u < 25 ? 'Ponnista nokalla!' : 'Klikkaa uudelleen hyppyrin nokalla';
     else if (h.vaihe === 'lento' && !h.alastulo) {
       const hiiri = viimeOsoitin === 'mouse';
       if (h.tLento < 1.2) vihje = hiiri ? 'Liikuta hiirtä: alas = eteen, ylös = kärjet ylös' : 'Paina ja vedä: alas = eteen, ylös = kärjet ylös';
@@ -770,7 +771,7 @@
     if (vihje) {
       ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
       ctx.font = `500 ${pieni ? 13 : 15}px Saira, system-ui, sans-serif`;
-      const kiire = vihje === 'Irrota nokalla!';
+      const kiire = vihje === 'Ponnista nokalla!';
       const lev = ctx.measureText(vihje).width + 24;
       const yb = pieni ? H - 64 : H - m;
       ctx.fillStyle = 'rgba(8,16,31,0.65)';
