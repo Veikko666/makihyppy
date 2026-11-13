@@ -1,0 +1,225 @@
+<title>Mäkikotka</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;800&family=Saira:wght@400;500;600&display=swap">
+<style>
+  /* Iltakisat valaistulla mäellä: tumma yötaivas, kirkas lumi, valonheittimien meripihka. Yksi pelinäkymä + kortit päällä. */
+  :root {
+    --yo: #08101f;
+    --yo-2: #13213d;
+    --pinta: rgba(12, 22, 42, 0.88);
+    --reuna: rgba(170, 196, 230, 0.18);
+    --lumi: #e9f0f7;
+    --himmea: #9db0c9;
+    --valo: #ffc94d;
+    --valo-tumma: #3a2a05;
+    --hyva: #63e0a3;
+    --huono: #ff7a66;
+    --fontti-otsikko: "Saira Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+    --fontti: "Saira", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body {
+    background: var(--yo);
+    color: var(--lumi);
+    font-family: var(--fontti);
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  #peli {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--yo-2);
+    border: 1px solid var(--reuna);
+  }
+  canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    display: block; touch-action: none; user-select: none; -webkit-user-select: none;
+    cursor: crosshair;
+  }
+  .peite {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    padding: 14px;
+    background: rgba(5, 10, 20, 0.45);
+    overflow: auto;
+  }
+  [hidden] { display: none !important; }
+  .kortti {
+    width: min(640px, 100%);
+    background: var(--pinta);
+    border: 1px solid var(--reuna);
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-sizing: border-box;
+    backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  h1 {
+    font-family: var(--fontti-otsikko);
+    font-weight: 800;
+    font-size: clamp(34px, 6vw, 52px);
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  h1 span { color: var(--valo); }
+  .ala { margin: 4px 0 0; color: var(--himmea); max-width: 60ch; }
+  h2 {
+    font-family: var(--fontti-otsikko);
+    font-weight: 700; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--himmea); margin: 0 0 8px;
+  }
+  .maet { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+  .maki {
+    font: inherit; color: inherit; text-align: left;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--reuna);
+    border-radius: 8px; padding: 10px 12px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .maki:hover { border-color: var(--himmea); }
+  .maki[aria-pressed="true"] { border-color: var(--valo); background: rgba(255, 201, 77, 0.1); }
+  .maki b { font-family: var(--fontti-otsikko); font-size: 20px; font-weight: 700; }
+  .maki small { color: var(--himmea); font-variant-numeric: tabular-nums; }
+  .ohje { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ohje th, .ohje td { text-align: left; padding: 6px 8px 6px 0; vertical-align: top; border-top: 1px solid var(--reuna); }
+  .ohje th { font-weight: 600; white-space: nowrap; }
+  .ohje td { color: var(--himmea); }
+  .ohje td strong { color: var(--lumi); font-weight: 500; }
+  .ohje-wrap { overflow-x: auto; }
+  kbd {
+    font-family: var(--fontti); font-size: 12px; padding: 1px 6px; border-radius: 4px;
+    border: 1px solid var(--reuna); background: rgba(255, 255, 255, 0.06); color: var(--lumi);
+  }
+  .asetukset { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; color: var(--himmea); }
+  .asetukset label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .asetukset input[type="range"] { width: 120px; accent-color: var(--valo); }
+  .asetukset input[type="checkbox"] { accent-color: var(--valo); width: 16px; height: 16px; }
+  .napit { display: flex; flex-wrap: wrap; gap: 10px; }
+  button.paa, button.toissijainen {
+    font-family: var(--fontti-otsikko); font-weight: 700; font-size: 19px; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 8px; padding: 10px 22px; cursor: pointer;
+  }
+  button.paa { background: var(--valo); color: var(--valo-tumma); border: 1px solid var(--valo); }
+  button.paa:hover { filter: brightness(1.08); }
+  button.toissijainen { background: transparent; color: var(--lumi); border: 1px solid var(--reuna); }
+  button.toissijainen:hover { border-color: var(--himmea); }
+  button:focus-visible, .maki:focus-visible { outline: 2px solid var(--valo); outline-offset: 2px; }
+
+  /* tulos */
+  .tulos-ylä { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .pituus {
+    font-family: var(--fontti-otsikko); font-weight: 800; font-size: clamp(56px, 11vw, 88px); line-height: 0.85;
+    font-variant-numeric: tabular-nums;
+  }
+  .pituus small { font-size: 0.4em; color: var(--himmea); margin-left: 4px; font-weight: 700; }
+  .merkki {
+    font-family: var(--fontti-otsikko); font-weight: 700; font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 6px;
+  }
+  .merkki.ennatys { background: var(--valo); color: var(--valo-tumma); }
+  .merkki.kaatui { background: rgba(255, 122, 102, 0.16); color: var(--huono); border: 1px solid rgba(255, 122, 102, 0.4); }
+  .merkki.ok { background: rgba(99, 224, 163, 0.12); color: var(--hyva); border: 1px solid rgba(99, 224, 163, 0.35); }
+  .rivit { display: grid; grid-template-columns: 1fr auto; gap: 6px 0; margin: 0; font-variant-numeric: tabular-nums; }
+  .rivit dt { color: var(--himmea); padding-right: 16px; }
+  .rivit dd { margin: 0; text-align: right; font-weight: 500; }
+  .rivit .yht { border-top: 1px solid var(--reuna); padding-top: 8px; font-family: var(--fontti-otsikko); font-size: 22px; font-weight: 700; color: var(--lumi); }
+  .tuomarit { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .tuomari {
+    text-align: center; border: 1px solid var(--reuna); border-radius: 6px; padding: 6px 0 4px;
+    font-family: var(--fontti-otsikko); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .tuomari small { display: block; font-family: var(--fontti); font-size: 10px; letter-spacing: 0.1em; color: var(--himmea); font-weight: 500; }
+  .tuomari.pois { color: var(--himmea); text-decoration: line-through; opacity: 0.6; }
+  .vihje { margin: 0; color: var(--himmea); font-size: 13px; }
+
+  #valikkonappi {
+    position: absolute; right: 10px; bottom: 10px;
+    font-family: var(--fontti-otsikko); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 13px;
+    background: rgba(8, 16, 31, 0.6); color: var(--lumi); border: 1px solid var(--reuna); border-radius: 6px;
+    padding: 6px 10px; cursor: pointer;
+  }
+  @media (max-width: 520px) {
+    .kortti { padding: 16px; }
+    .ohje th { white-space: normal; }
+  }
+</style>
+
+<div id="peli">
+  <canvas id="cv" aria-label="Mäkihyppy"></canvas>
+  <button id="valikkonappi" type="button" hidden>Valikko</button>
+
+  <div id="valikko" class="peite">
+    <div class="kortti">
+      <div>
+        <h1>Mäki<span>kotka</span></h1>
+        <p class="ala">Selainprototyyppi mobiiliohjauksen testaamiseen. Hiiri toimii kuten sormi: pidä nappia pohjassa, irrota ja vedä.</p>
+      </div>
+      <section>
+        <h2>Mäki</h2>
+        <div id="maet" class="maet"></div>
+      </section>
+      <section>
+        <h2>Ohjaus</h2>
+        <div class="ohje-wrap">
+          <table class="ohje">
+            <tr><th>Vauhti</th><td><strong>Paina ja pidä</strong> sormi tai hiiren nappi pohjassa</td><td><kbd>Välilyönti</kbd> pohjaan</td></tr>
+            <tr><th>Ponnistus</th><td><strong>Irrota</strong> juuri hyppyrin nokalla</td><td>Irrota <kbd>Välilyönti</kbd></td></tr>
+            <tr><th>Lento</th><td><strong>Paina ja vedä</strong>: alas = kallistu eteen, ylös = nosta kärkiä</td><td><kbd>↓</kbd> eteen, <kbd>↑</kbd> taakse</td></tr>
+            <tr><th>Alastulo</th><td><strong>Lyhyt napautus</strong> = telemark<br><strong>Kaksi sormea</strong> tai hiiren oikea = tasajalka</td><td><kbd>T</kbd> telemark<br><kbd>Shift</kbd> tasajalka</td></tr>
+          </table>
+        </div>
+      </section>
+      <section class="asetukset">
+        <label for="a-herkkyys">Herkkyys <input id="a-herkkyys" type="range" min="0.12" max="0.6" step="0.02"></label>
+        <label for="a-kaanna"><input id="a-kaanna" type="checkbox"> Käännä veto</label>
+        <label for="a-helppo"><input id="a-helppo" type="checkbox"> Helppo lento</label>
+        <label for="a-aani"><input id="a-aani" type="checkbox"> Äänet</label>
+      </section>
+      <div class="napit">
+        <button id="b-aloita" class="paa" type="button">Mäelle</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tulos" class="peite" hidden>
+    <div class="kortti">
+      <div class="tulos-ylä">
+        <div class="pituus"><span id="t-pituus">0</span><small>m</small></div>
+        <span id="t-merkki" class="merkki"></span>
+      </div>
+      <dl class="rivit">
+        <dt>Ponnistus</dt><dd id="t-ponnistus"></dd>
+        <dt>Nopeus nokalla</dt><dd id="t-nopeus"></dd>
+        <dt>Alastulo</dt><dd id="t-alastulo"></dd>
+        <dt>Pituuspisteet</dt><dd id="t-pp"></dd>
+        <dt>Tyylipisteet</dt><dd id="t-tp"></dd>
+        <dt>Tuulikorjaus</dt><dd id="t-tuuli"></dd>
+        <dt class="yht">Yhteensä</dt><dd class="yht" id="t-yht"></dd>
+      </dl>
+      <div class="tuomarit" id="t-tuomarit"></div>
+      <div class="napit">
+        <button id="b-uudestaan" class="paa" type="button">Hyppää uudestaan</button>
+        <button id="b-valikko" class="toissijainen" type="button">Vaihda mäkeä</button>
+      </div>
+      <p class="vihje">Välilyönti tai Enter = uusi hyppy · Esc = valikko</p>
+    </div>
+  </div>
+</div>
+
+<script src="fysiikka.js"></script>
+<script src="peli.js"></script>

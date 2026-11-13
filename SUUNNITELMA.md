@@ -40,8 +40,13 @@ Tavoite: koko hyppy yhdellä peukalolla, mutta syvyyttä riittää.
    veto kosketuskohdasta** ohjaa vartalon kulmaa (ylös = pystympi, alas =
    etukenompi). Suhteellinen ohjaus → ei väliä mihin kohtaan ruutua painaa.
 4. **Alastulo:**
-   - **Pyyhkäisy alas** = telemark (paremmat tyylipisteet, vaikeampi)
-   - **Kahden sormen napautus** tai sormen nosto = tasajalka (turvallisempi)
+   - **Lyhyt napautus** = telemark (paremmat tyylipisteet, vaikeampi).
+     Alun perin suunniteltu pyyhkäisy alas sekoittui eteenpäin kallistavaan
+     vetoon, joten selainprototyypissä käytetään napautusta.
+   - **Kahden sormen napautus** = tasajalka (turvallisempi)
+
+Selainprototyyppi (`selain/`) testaa tätä ohjausta PC:llä hiirellä:
+hiiren nappi toimii kuin sormi, ja hiiren oikea nappi vastaa kahta sormea.
 
 ### Vaihtoehtoinen ohjaus (asetuksista)
 - **Kallistus (kiihtyvyysanturi)** lentoasennolle, napautukset muuhun.
