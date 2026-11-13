@@ -27,7 +27,7 @@
   }
   function kirjoita(avain, arvo) { try { localStorage.setItem(avain, JSON.stringify(arvo)); } catch (e) { /* ei tallennusta */ } }
 
-  const asetukset = lue('makikotka.asetukset', { herkkyys: 0.3, kaanna: false, helppo: false, aani: true, maki: 'k90' });
+  const asetukset = lue('makikotka.asetukset2', { herkkyys: 0.4, kaanna: false, helppo: false, aani: true, maki: 'k90' });
   const ennatykset = lue('makikotka.ennatykset', {});
 
   // ------------------------------------------------------------ mäet
@@ -134,7 +134,7 @@
       const e = ennatykset[m.id];
       b.innerHTML = `<b>${m.nimi}</b><small>K${m.K} · HS${m.HS}</small><small>${e ? 'Ennätys ' + fi(e, 1) + ' m' : 'Ei hyppyjä'}</small>`;
       b.addEventListener('click', () => {
-        maki = m; asetukset.maki = m.id; kirjoita('makikotka.asetukset', asetukset);
+        maki = m; asetukset.maki = m.id; kirjoita('makikotka.asetukset2', asetukset);
         rakennaMaet();
         asetaKamera(true);
       });
@@ -267,7 +267,7 @@
     asetukset.kaanna = $('a-kaanna').checked;
     asetukset.helppo = $('a-helppo').checked;
     asetukset.aani = $('a-aani').checked;
-    kirjoita('makikotka.asetukset', asetukset);
+    kirjoita('makikotka.asetukset2', asetukset);
     if (!asetukset.aani && tuuliGain) tuuliGain.gain.value = 0;
   };
   ['a-herkkyys', 'a-kaanna', 'a-helppo', 'a-aani'].forEach((id) => $(id).addEventListener('input', tallennaAsetukset));

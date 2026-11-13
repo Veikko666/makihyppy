@@ -115,14 +115,15 @@
   }
   function vastusA(aDeg) {
     const s = Math.sin(clamp(aDeg, -90, 90) * DEG);
-    return 0.2 + 1.15 * s * s;
+    return 0.2 + 0.85 * s * s;
   }
 
   const ASETUKSET = {
-    alfaTasapaino: 27,   // kulma, jossa vartalo ei itsestään kierry
-    epavakaus: 0.85,     // 1/s – kuinka nopeasti vartalo karkaa tasapainosta
-    kohina: 5,           // °/s puuskaisuus
-    alfaAlku: 40,        // kohtauskulma heti ponnistuksen jälkeen
+    alfaTasapaino: 28,   // kulma, jossa vartalo ei itsestään kierry
+    epavakaus: -0.6,     // 1/s – negatiivinen = vartalo palautuu hitaasti kohti tasapainokulmaa
+    vakausHelppo: -2.1,  // helppo tila: vartalo hakeutuu itsestään hyvään asentoon
+    kohina: 3.5,         // °/s puuskaisuus
+    alfaAlku: 33,        // kohtauskulma heti ponnistuksen jälkeen
     kitka: 0.02,
     vastusKyyky: 0.0016,
     vastusPysty: 0.0045,
@@ -132,7 +133,7 @@
   function uusiHyppy(maki, opt) {
     opt = opt || {};
     const rng = mulberry32(opt.siemen != null ? opt.siemen : (Math.random() * 2 ** 31) | 0);
-    const vaikeus = opt.helppo ? 0.45 : 1;
+    const vaikeus = opt.helppo ? -6 : 1; // helppo: vartalo hakeutuu itsestään hyvään asentoon
     const alku = vauhtiU(maki, maki.lahtoU || 0);
     return {
       maki, rng,
@@ -262,8 +263,8 @@
 
       // Vartalon epävakaus + puuskat.
       if (!h.alastulo && !h.kaatuu) {
-        h.puuska += -h.puuska * DT / 0.5 + A.kohina * h.vaikeus * Math.sqrt(DT) * gauss(h.rng) * 1.4;
-        const lam = A.epavakaus * h.vaikeus * (V / 25);
+        h.puuska += -h.puuska * DT / 0.5 + A.kohina * (h.vaikeus < 0 ? 0.5 : 1) * Math.sqrt(DT) * gauss(h.rng) * 1.4;
+        const lam = (h.vaikeus < 0 ? A.vakausHelppo : A.epavakaus) * (V / 25);
         h.th += (lam * (h.alfa - A.alfaTasapaino) + h.puuska) * DEG * DT;
         if (h.tLento > 0.25) {
           const dev = h.alfa - 30;
@@ -360,6 +361,7 @@
   function botti(maki, v0, alfaTavoite, maxT) {
     const h = uusiHyppy(maki, { siemen: 1 });
     h.vaihe = 'lento'; h.irrotettu = true; h.ponnistusLaatu = 1;
+    h.x = 0; h.y = 0;
     const an = maki.kulmaNokka * DEG;
     h.vx = Math.cos(an) * v0; h.vy = -Math.sin(an) * v0; h.v0 = v0;
     lisaaPonnistus(h, 1);
